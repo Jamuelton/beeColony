@@ -28,7 +28,7 @@ def fitness(food,problem="sphere"):
         for i in range(0,(len(food)-1)):
             resultado += 100*(food[i+1] - food[i]**2)**2 + (food[i] - 1)**2
     
-        return 
+        return resultado
     
 def roulette(foodSolutions):
     
@@ -50,16 +50,16 @@ class foodSolution:
         self.fitness = fitness
         self.abandonment = abandonment
 
-def generateFoodSolution(foodSize,dimentions,minLimit, maxLimit):
+def generateFoodSolution(foodSize,dimentions,minLimit, maxLimit,problem):
     positons = np.random.uniform(minLimit,maxLimit,(foodSize,dimentions))
 
-    food = [foodSolution(pos,fitness(pos)) for pos in positons]
+    food = [foodSolution(pos,fitness(pos,problem)) for pos in positons]
 
     return food
 
-def populationIniciation(populationSize, dimentions,minLimit, maxLimit):
+def populationIniciation(populationSize, dimentions,minLimit, maxLimit,problem):
 
-    foodSolution = generateFoodSolution(populationSize//2,dimentions,minLimit, maxLimit)
+    foodSolution = generateFoodSolution(populationSize//2,dimentions,minLimit, maxLimit,problem)
 
     employedBee = foodSolution[:populationSize//2]
 
@@ -69,7 +69,7 @@ def populationIniciation(populationSize, dimentions,minLimit, maxLimit):
 
 
 #   Employed Bees Phase
-def employedBeePhase(foodSolutions, minLimit, maxLimit):
+def employedBeePhase(foodSolutions, minLimit, maxLimit,problem):
     
     for i, foodSolution in enumerate(foodSolutions):
         beeCord = np.random.randint(0,len(foodSolution.position))
@@ -85,7 +85,7 @@ def employedBeePhase(foodSolutions, minLimit, maxLimit):
         newPosition = np.clip(newPosition, minLimit, maxLimit)
         
         
-        newFitness = fitness(newPosition)
+        newFitness = fitness(newPosition,problem)
         
         
         if newFitness < foodSolution.fitness:
@@ -98,7 +98,7 @@ def employedBeePhase(foodSolutions, minLimit, maxLimit):
             foodSolution.abandonment += 1
 
 #   Onlooker Bees Phase
-def onlookerBeePhase(foodSolutions, onlookerBee, minLimit, maxLimit):
+def onlookerBeePhase(foodSolutions, onlookerBee, minLimit, maxLimit,problem):
     chance = roulette(foodSolutions)
 
     for onlooker in onlookerBee:
@@ -115,7 +115,7 @@ def onlookerBeePhase(foodSolutions, onlookerBee, minLimit, maxLimit):
 
         newPosition = np.clip(newPosition, minLimit, maxLimit)
         
-        newFitness = fitness(newPosition)
+        newFitness = fitness(newPosition,problem)
 
         if newFitness < foodSelect.fitness:
            
@@ -127,29 +127,29 @@ def onlookerBeePhase(foodSolutions, onlookerBee, minLimit, maxLimit):
             foodSelect.abandonment += 1
 
 #   Scout Bees Phase
-def scoutBeePhase(foodSolutions, minLimit, maxLimit, maxAbandonment):
+def scoutBeePhase(foodSolutions, minLimit, maxLimit, maxAbandonment,problem):
     for foodSolution in foodSolutions:
         if(foodSolution.abandonment > maxAbandonment):
             newPosition = np.random.uniform(minLimit,maxLimit,len(foodSolution.position))
-            newFitness = fitness(newPosition)
+            newFitness = fitness(newPosition,problem)
 
             foodSolution.position = newPosition
             foodSolution.fitness = newFitness
             foodSolution.abandonment = 0
 
 
-def beeColony(populationSize, cicles, dimentions, minLimit, maxLimit, maxAbandonment):
+def beeColony(populationSize, cicles, dimentions, minLimit, maxLimit, maxAbandonment,problem):
 
-    foodSolution, employedBee, onlookerBee = populationIniciation(populationSize,dimentions,minLimit, maxLimit)
+    foodSolution, employedBee, onlookerBee = populationIniciation(populationSize,dimentions,minLimit, maxLimit,problem)
 
     bestFood = bestSolution(foodSolution)
     print(f"Melhor fitnes inicial: {bestFood.fitness}")
     for cycle in range(cicles):
-        employedBeePhase(employedBee,minLimit,maxLimit)
+        employedBeePhase(employedBee,minLimit,maxLimit,problem)
 
-        onlookerBeePhase(foodSolution,onlookerBee,minLimit, maxLimit)
+        onlookerBeePhase(foodSolution,onlookerBee,minLimit, maxLimit,problem)
 
-        scoutBeePhase(foodSolution,minLimit,maxLimit,maxAbandonment)
+        scoutBeePhase(foodSolution,minLimit,maxLimit,maxAbandonment,problem)
 
         bestCycle = bestSolution(foodSolution)
 
@@ -162,7 +162,7 @@ def beeColony(populationSize, cicles, dimentions, minLimit, maxLimit, maxAbandon
         print(f"Fonte de Alimentação {i+1}: Posição = {fs.position}, Fitness = {fs.fitness}, Fator de Abandono = {fs.abandonment}")
 
 
-    return foodSolution
+    
 
-beeColony(20,100,2,-10,10,5)
+beeColony(20,100,30,-10,10,5,"rosenbrock")
 
