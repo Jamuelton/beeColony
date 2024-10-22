@@ -162,7 +162,7 @@ def beeColony(populationSize, cicles, dimentions, minLimit, maxLimit, maxAbandon
         print(f"Fonte de Alimentação {i+1}: Posição = {fs.position}, Fitness = {fs.fitness}, Fator de Abandono = {fs.abandonment}")
 
 
-    return foodSolution
+    
 
 beeColony(20,100,2,-10,10,5)
 
